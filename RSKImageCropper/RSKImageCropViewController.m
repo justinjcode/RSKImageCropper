@@ -954,6 +954,14 @@ static const CGFloat kLayoutImageScrollViewAnimationDuration = 0.25;
     }
 }
 
+- (BOOL)imageHasAlphaChannel:(UIImage *)image {
+    CGImageAlphaInfo alpha = CGImageGetAlphaInfo(image.CGImage);
+    return (alpha == kCGImageAlphaFirst ||
+            alpha == kCGImageAlphaLast ||
+            alpha == kCGImageAlphaPremultipliedFirst ||
+            alpha == kCGImageAlphaPremultipliedLast);
+}
+
 - (UIImage *)croppedImage:(UIImage *)originalImage cropMode:(RSKImageCropMode)cropMode cropRect:(CGRect)cropRect imageRect:(CGRect)imageRect rotationAngle:(CGFloat)rotationAngle zoomScale:(CGFloat)zoomScale maskPath:(UIBezierPath *)maskPath applyMaskToCroppedImage:(BOOL)applyMaskToCroppedImage
 {
     // Step 1: create an image using the data contained within the specified rect.
@@ -972,7 +980,8 @@ static const CGFloat kLayoutImageScrollViewAnimationDuration = 0.25;
     } else {
         // Step 4: create a new context.
         CGSize contextSize = cropRect.size;
-        UIGraphicsBeginImageContextWithOptions(contextSize, NO, originalImage.scale);
+        BOOL isTranslucent = [self imageHasAlphaChannel:image];
+        UIGraphicsBeginImageContextWithOptions(contextSize, !isTranslucent, originalImage.scale);
         
         // Step 5: apply the mask if needed.
         if (applyMaskToCroppedImage) {
@@ -1090,3 +1099,4 @@ static const CGFloat kLayoutImageScrollViewAnimationDuration = 0.25;
 }
 
 @end
+
